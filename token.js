@@ -1,5 +1,6 @@
-// token.js – One-time token library by Taithai
+// token.js – One-time Token Library (Taithai)
 
+// ใช้ localStorage เก็บสถานะ token ใน "อุปกรณ์ / browser" นั้น ๆ
 (function (window) {
   const STORAGE_KEY = "tokensStore";
 
@@ -21,7 +22,9 @@
     return Math.random().toString(36).slice(2, 10);
   }
 
-  // ---------- 1) สร้างโทเค็นใหม่แล้วเด้งไปหน้า target ----------
+  // -----------------------------
+  // 1) สร้างโทเคนใหม่ + redirect ไปหน้า target
+  // -----------------------------
   function create(options) {
     const opts = options || {};
     const target = opts.target || "index.html";
@@ -39,20 +42,42 @@
     window.location.href = url;
   }
 
-  // ---------- 2) ใช้โทเค็นได้แค่ครั้งเดียว (ไม่ redirect เอง) ----------
-  // ใช้สำหรับหน้า Home / Secure
+  // helper สำหรับเขียนข้อความลง DOM
+  function renderMessage(html, selector) {
+    const root =
+      (selector && document.querySelector(selector)) ||
+      document.querySelector("#app") ||
+      document.body;
+
+    root.innerHTML = html;
+  }
+
+  // -------------------------------------------------
+  // 2) useOnce: โทเคน 1 อัน ใช้เข้าได้รอบเดียวใน browser นี้
+  //    - ไม่ redirect เอง
+  //    - ไม่สร้างโทเคนใหม่เอง
+  //    - ถ้า refresh → แสดงข้อความ "ใช้แล้ว"
+  // -------------------------------------------------
   function useOnce(options) {
     const opts = options || {};
-    const cleanUrl = opts.cleanUrl === true; // default = ไม่ลบ token เพื่อ debug ง่าย
-    const onFirstUse = opts.onFirstUse || function () {};
-    const onAlreadyUsed = opts.onAlreadyUsed || function () {};
-    const onInvalid = opts.onInvalid || function () {};
+    const selector = opts.selector || "#app";
+    const cleanUrl = opts.cleanUrl === true; // default = ไม่ลบ token ออกจาก URL
+
+    // ข้อความ default (ภาษาไทย)
+    const messages = opts.messages || {
+      first:
+        "🎉 ยินดีต้อนรับ!<br>โทเคนนี้ถูกต้อง และเพิ่งถูกใช้ครั้งแรกในอุปกรณ์นี้",
+      used:
+        "⛔ โทเคนนี้ถูกใช้ไปแล้วในอุปกรณ์นี้<br>กรุณากลับไปสร้างโทเคนใหม่",
+      invalid:
+        "❌ โทเคนไม่ถูกต้อง หรือไม่เคยถูกสร้างในอุปกรณ์นี้<br>กรุณาเริ่มจากหน้าสร้างโทเคน"
+    };
 
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
     if (!token) {
-      onInvalid("missing_token");
+      renderMessage(messages.invalid + " (missing token)", selector);
       return;
     }
 
@@ -60,12 +85,12 @@
     const info = store[token];
 
     if (!info) {
-      onInvalid("not_found");
+      renderMessage(messages.invalid + " (not found)", selector);
       return;
     }
 
     if (info.used) {
-      onAlreadyUsed({ token, info });
+      renderMessage(messages.used, selector);
       return;
     }
 
@@ -81,11 +106,11 @@
       window.history.replaceState({}, "", url.pathname + url.search);
     }
 
-    onFirstUse({ token, info });
+    renderMessage(messages.first, selector);
   }
 
   window.Token = {
-    create,
-    useOnce,
+    create,   // ใช้ในหน้า Gen
+    useOnce   // ใช้ในหน้า Home (หนึ่งโทเคนเข้าได้รอบเดียว)
   };
 })(window);
