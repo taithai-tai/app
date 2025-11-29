@@ -5,11 +5,7 @@
   function getStore() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
-    try {
-      return JSON.parse(raw);
-    } catch (e) {
-      return {};
-    }
+    try { return JSON.parse(raw); } catch (e) { return {}; }
   }
 
   function saveStore(store) {
@@ -20,7 +16,7 @@
     return Math.random().toString(36).slice(2, 10);
   }
 
-  // สร้าง Token แล้วส่งต่อไปยังหน้าเป้าหมาย
+  // สร้างโทเคนแล้วส่งต่อไปหน้า target
   function create(options) {
     const opts = options || {};
     const target = opts.target || "index.html";
@@ -33,14 +29,12 @@
     saveStore(store);
 
     let url = target + "?token=" + encodeURIComponent(token);
-    if (extraQuery) {
-      url += "&" + extraQuery;
-    }
+    if (extraQuery) url += "&" + extraQuery;
 
     window.location.href = url;
   }
 
-  // ปกป้องหน้าที่ต้องการด้วย Token
+  // กันหน้าให้ต้องใช้โทเคน
   function guard(options) {
     const opts = options || {};
     const tokenPage = opts.tokenPage || "token.html";
