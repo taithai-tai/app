@@ -1,6 +1,5 @@
-// token.js  – One-time token library (by Taithai)
+// token.js – One-time token library by Taithai
 
-// ทั้งหมดทำงานใน IIFE เพื่อลดของเลอะบน global
 (function (window) {
   const STORAGE_KEY = "tokensStore";
 
@@ -19,12 +18,10 @@
   }
 
   function generate() {
-    return Math.random().toString(36).slice(2, 10); // ตัวอย่าง: "k3f9ab1z"
+    return Math.random().toString(36).slice(2, 10);
   }
 
-  // -----------------------------
-  // 1) สร้างโทเค็นใหม่ + redirect
-  // -----------------------------
+  // ---------- 1) สร้างโทเค็นใหม่แล้วเด้งไปหน้า target ----------
   function create(options) {
     const opts = options || {};
     const target = opts.target || "index.html";
@@ -42,60 +39,11 @@
     window.location.href = url;
   }
 
-  // ----------------------------------------
-  // 2) guard แบบเก่า (ยังเก็บไว้เผื่อมีคนใช้)
-  //    อันนี้จะ redirect กลับ tokenPage ถ้าไม่ผ่าน
-  // ----------------------------------------
-  function guard(options) {
-    const opts = options || {};
-    const tokenPage = opts.tokenPage || "token.html";
-    const cleanUrl = opts.cleanUrl !== false;
-    const onSuccess = opts.onSuccess || function () {};
-    const onFail = opts.onFail || function () {};
-
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-
-    if (!token) {
-      onFail("missing_token");
-      return (window.location.href = tokenPage);
-    }
-
-    const store = getStore();
-    const info = store[token];
-
-    if (!info) {
-      onFail("not_found");
-      return (window.location.href = tokenPage);
-    }
-
-    if (info.used) {
-      onFail("already_used");
-      return (window.location.href = tokenPage);
-    }
-
-    info.used = true;
-    info.usedAt = Date.now();
-    saveStore(store);
-
-    if (cleanUrl) {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("token");
-      window.history.replaceState({}, "", url.pathname + url.search);
-    }
-
-    onSuccess({ token, info });
-  }
-
-  // ------------------------------------------------
-  // 3) useOnce: เวอร์ชันที่คุณต้องการแบบเป๊ะ ๆ
-  //    - ไม่ redirect เอง
-  //    - ไม่สร้าง token ใหม่เอง
-  //    - ใช้สำหรับหน้า home / secure
-  // ------------------------------------------------
+  // ---------- 2) ใช้โทเค็นได้แค่ครั้งเดียว (ไม่ redirect เอง) ----------
+  // ใช้สำหรับหน้า Home / Secure
   function useOnce(options) {
     const opts = options || {};
-    const cleanUrl = opts.cleanUrl !== false;
+    const cleanUrl = opts.cleanUrl === true; // default = ไม่ลบ token เพื่อ debug ง่าย
     const onFirstUse = opts.onFirstUse || function () {};
     const onAlreadyUsed = opts.onAlreadyUsed || function () {};
     const onInvalid = opts.onInvalid || function () {};
@@ -136,10 +84,8 @@
     onFirstUse({ token, info });
   }
 
-  // export
   window.Token = {
-    create,   // เอาไว้ใช้ในหน้า Gen / NFC
-    guard,    // เวอร์ชันเดิม (มี redirect)
-    useOnce,  // เวอร์ชันใหม่ ใช้ครั้งเดียวตามที่คุณต้องการ
+    create,
+    useOnce,
   };
 })(window);
