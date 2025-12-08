@@ -12,5 +12,18 @@
 - ทำให้เอาไปใช้ซ้ำในโปรเจกต์อื่นได้ง่าย (copy / import ได้ทันที)
 - ค่อย ๆ พัฒนาให้กลายเป็น “กล่องเครื่องมือ” ส่วนตัวสำหรับเว็บแอปของผม
 
+---
 
+# app 🧩 | Taithai Open-Source Helpers
 
+**app** is a project where I collect reusable helper scripts and small plug-ins  
+such as token management for client-side web applications.  
+Everything here is designed to be **easy to reuse** and fully **open-source**.
+
+---
+
+## 🎯 Project Goals
+
+- Centralize helper functions I frequently use in my web projects
+- Make them easy to reuse across multiple future projects (copy / import)
+- Gradually grow this into my personal **Web App Toolkit**
