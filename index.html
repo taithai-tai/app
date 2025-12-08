@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>app | Taithai Open-Source Helpers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Taithai Open-Source Helpers - กล่องเครื่องมือโอเพ่นซอร์สสำหรับเว็บแอป เช่น token.js และยูทิลิตีอื่น ๆ">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-main: radial-gradient(circle at top, #151515, #050509);
+      --card-bg: rgba(18, 18, 22, 0.96);
+      --card-soft: rgba(22, 22, 30, 0.96);
+      --accent: #f5c056;
+      --accent-soft: #ffe6a3;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.3);
+      --shadow-soft: 0 20px 45px rgba(0, 0, 0, 0.8);
+      --radius-xl: 26px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Prompt", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px 40px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.6));
+      border-radius: 32px;
+      padding: 24px 20px 26px;
+      border: 1px solid rgba(245, 192, 86, 0.5);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: -80%;
+      background:
+        radial-gradient(circle at top left, rgba(245, 192, 86, 0.18), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.9), transparent 65%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 250, 252, 0.16);
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(10px);
+      color: var(--accent-soft);
+      font-size: 13px;
+    }
+
+    .badge-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(245, 192, 86, 0.9);
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 5vw, 34px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: 0.02em;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-title span.highlight {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 640px;
+    }
+
+    .hero-sub strong {
+      color: var(--accent-soft);
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.17s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #111827;
+      border-color: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(245, 192, 86, 0.4);
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--accent-soft);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon {
+      font-size: 15px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-meta span::before {
+      content: "•";
+      opacity: 0.65;
+    }
+
+    .hero-meta span:first-child::before {
+      content: "";
+      width: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      padding: 18px 16px 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+    }
+
+    .card h2 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--accent-soft);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .features {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .features {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .feature-pill {
+      border-radius: var(--radius-lg);
+      padding: 10px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: var(--card-soft);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .feature-pill strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .code-block {
+      margin-top: 8px;
+      background: #020617;
+      border-radius: 14px;
+      padding: 10px 11px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.55;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: #e5e7eb;
+    }
+
+    .code-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    code {
+      font-family: inherit;
+    }
+
+    .roadmap-list {
+      margin-top: 6px;
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .roadmap-list li {
+      margin-bottom: 4px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+    }
+
+    .roadmap-list li span.box {
+      width: 13px;
+      height: 13px;
+      border-radius: 4px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .roadmap-list li span.box.done {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .roadmap-list li span.text {
+      flex: 1;
+    }
+
+    .section-footer {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    .footer a {
+      color: var(--accent-soft);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span>Taithai Open-Source Helpers · <strong>app</strong></span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="highlight">app</span>
+          <span>— Web Helper Toolkit</span>
+        </h1>
+
+        <p class="hero-sub">
+          A small open-source collection of <strong>reusable helpers</strong> and plug-ins
+          for my web projects — starting from <strong>token.js</strong> for client-side
+          token management, and expanding into a personal toolkit for future apps.
+        </p>
+
+        <div class="hero-actions">
+          <!-- เปลี่ยนลิงก์ GitHub ตาม repo ของคุณเองด้านล่างนี้ -->
+          <a class="btn btn-primary" href="https://github.com/taithai-tai/app" target="_blank" rel="noopener">
+            <span class="btn-icon">⭐</span>
+            <span>View on GitHub</span>
+          </a>
+          <a class="btn btn-ghost" href="#modules">
+            <span class="btn-icon">📚</span>
+            <span>View Modules & Usage</span>
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span>Open-source</span>
+          <span>Lightweight & reusable</span>
+          <span>Made for my own real projects</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="modules">
+      <!-- ซ้าย: About & Features -->
+      <article class="card">
+        <h2>What is this project?</h2>
+        <p>
+          <strong>app</strong> is a personal sandbox for my reusable helper scripts.
+          Instead of rewriting the same logic in every new project, I collect
+          them here — clean, minimal, and ready to plug into any web app.
+        </p>
+
+        <div class="chip-row">
+          <span class="chip">Vanilla JS</span>
+          <span class="chip">Front-end Helpers</span>
+          <span class="chip">Copy &amp; Paste Ready</span>
+        </div>
+
+        <div class="features">
+          <div class="feature-pill">
+            <strong>Reusable.</strong> Helpers are designed to be dropped into any
+            static site or front-end project with minimal setup.
+          </div>
+          <div class="feature-pill">
+            <strong>Practical.</strong> Every helper exists because I actually
+            needed it in a real project.
+          </div>
+          <div class="feature-pill">
+            <strong>Simple.</strong> No frameworks required. Just HTML, CSS, and JS.
+          </div>
+          <div class="feature-pill">
+            <strong>Open.</strong> Licensed to let others learn from or reuse the code.
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="section-title">Current focus</div>
+          <p>
+            The first module in this toolkit is <strong>token.js</strong> — a small
+            client-side token manager built with <code>localStorage</code>, ideal for:
+          </p>
+          <ul class="roadmap-list" style="margin-top:6px;">
+            <li>
+              <span class="box done"></span>
+              <span class="text">One-time access flows (simple “unlock page” logic)</span>
+            </li>
+            <li>
+              <span class="box"></span>
+              <span class="text">Preventing direct URL sharing without going through a start page</span>
+            </li>
+            <li>
+              <span class="box"></span>
+              <span class="text">Lightweight gating for demo pages or mini tools</span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ขวา: token.js usage -->
+      <article class="card">
+        <h2>token.js · Quick Start</h2>
+        <p>
+          <strong>token.js</strong> lets you create and validate simple tokens
+          on the client-side. No server required — it uses
+          <code>localStorage</code> to remember which tokens were used.
+        </p>
+
+        <div style="margin-top:10px;">
+          <div class="section-title">1. Include script</div>
+          <div class="code-block">
+            <pre><code>&lt;script src="token/token.js"&gt;&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div class="section-title">2. Create token &amp; redirect</div>
+          <div class="code-label">Example: from a landing page</div>
+          <div class="code-block">
+<pre><code>&lt;script&gt;
+  // Create a token and redirect to a protected page
+  Token.create({
+    target: "secret.html",      // target page
+    extraQuery: "from=landing"  // optional extra query
+  });
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div class="section-title">3. Validate token on target page</div>
+          <div class="code-block">
+<pre><code>&lt;script src="token/token.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Optional: hide content by default in CSS
+  // body { display: none; }
+
+  if (Token.validate()) {
+    document.body.style.display = "block";
+  } else {
+    // If invalid or already used, send user back
+    window.location.href = "index.html";
+  }
+&lt;/script&gt;</code></pre>
+          </div>
+        </div>
+
+        <p class="section-footer">
+          For more details and the real implementation, check the source file
+          in the GitHub repository.
+        </p>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top:18px;">
+      <article class="card">
+        <h2>Roadmap</h2>
+        <ul class="roadmap-list">
+          <li>
+            <span class="box done"></span>
+            <span class="text">Create base project and token.js module</span>
+          </li>
+          <li>
+            <span class="box"></span>
+            <span class="text">Add more helpers (random utilities, DOM helpers, input validation)</span>
+          </li>
+          <li>
+            <span class="box"></span>
+            <span class="text">Convert helpers to ES Modules for modern workflows</span>
+          </li>
+          <li>
+            <span class="box"></span>
+            <span class="text">Add simple tests and more examples</span>
+          </li>
+          <li>
+            <span class="box"></span>
+            <span class="text">Optionally publish as an npm package in the future</span>
+          </li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>About the developer</h2>
+        <p>
+          Hello, I'm <strong>Danupol Saengnakhon (Taithai)</strong> — a student who
+          enjoys building practical tools, experimenting with web technologies,
+          and reusing my own code in smarter ways.
+        </p>
+        <p style="margin-top:8px;">
+          This project started as a personal toolbox, but I'm happy if others
+          find it useful or learn something from it too.
+        </p>
+        <p class="section-footer">
+          If you have ideas for new helpers or want to improve existing ones,
+          feel free to open an Issue or Pull Request on GitHub. 🤝
+        </p>
+      </article>
+    </section>
+
+    <footer class="footer">
+      Made with ☕ &amp; curiosity ·
+      <a href="https://github.com/taithai-tai" target="_blank" rel="noopener">Taithai on GitHub</a>
+    </footer>
+  </main>
+</body>
+</html>
